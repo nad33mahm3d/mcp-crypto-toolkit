@@ -247,4 +247,5 @@ export const GAS_SCAN_APIS: Partial<
   base: { url: "https://api.basescan.org/api", apiKeyEnv: "BASESCAN_API_KEY" },
 };
 
-export const USER_AGENT = "mcp-crypto-price/1.0.0 (https://github.com/mcp-crypto-price)";
+export const USER_AGENT =
+  "mcp-crypto-toolkit/1.0.0 (https://github.com/nad33mahm3d/mcp-crypto-toolkit)";

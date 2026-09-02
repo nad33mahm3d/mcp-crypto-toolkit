@@ -1,4 +1,4 @@
-# mcp-crypto-price — Example Conversations
+# mcp-crypto-toolkit — Example Conversations
 
 Five example conversations showing how AI agents use this MCP server.
 

@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { registerTools } from "./server.js";
 
 const server = new Server(
-  { name: "mcp-crypto-price", version: "1.0.0" },
+  { name: "mcp-crypto-toolkit", version: "1.0.0" },
   { capabilities: { tools: {} } },
 );
 

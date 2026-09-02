@@ -1,9 +1,9 @@
 {
-  "name": "mcp-crypto-price",
+  "name": "mcp-crypto-toolkit",
   "version": "1.0.0",
   "description": "Live crypto prices, PKR conversion, gas tracker and calculators for AI agents - MCP Server",
   "type": "module",
-  "bin": { "mcp-crypto-price": "./dist/index.js" },
+  "bin": { "mcp-crypto-toolkit": "./dist/index.js" },
   "files": ["dist"],
   "main": "./dist/index.js",
   "scripts": {
@@ -14,8 +14,8 @@
   },
   "keywords": ["mcp", "mcp-server", "crypto", "bitcoin", "ethereum", "coingecko", "pkr", "claude", "cursor", "ai-agent"],
   "license": "MIT",
-  "author": "Your Name",
-  "repository": { "type": "git", "url": "https://github.com/YOUR_USERNAME/mcp-crypto-price" },
+  "author": "Nadeem Ahmed <ebox.nadeem@gmail.com>",
+  "repository": { "type": "git", "url": "https://github.com/nad33mahm3d/mcp-crypto-toolkit" },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
     "zod": "^3.23.0"

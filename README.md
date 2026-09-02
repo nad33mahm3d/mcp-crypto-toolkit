@@ -1,6 +1,6 @@
-# mcp-crypto-price
+# mcp-crypto-toolkit
 
-[![npm version](https://img.shields.io/npm/v/mcp-crypto-price.svg)](https://www.npmjs.com/package/mcp-crypto-price)
+[![npm version](https://img.shields.io/npm/v/mcp-crypto-toolkit.svg)](https://www.npmjs.com/package/mcp-crypto-toolkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP](https://img.shields.io/badge/MCP-Server-blue.svg)](https://modelcontextprotocol.io)
 
@@ -21,7 +21,7 @@ Ask Claude: *What's 0.5 BTC in PKR? What's ETH gas now?*
 ## Quick Install
 
 ```bash
-npx -y mcp-crypto-price
+npx -y mcp-crypto-toolkit
 ```
 
 Zero config. No API keys required for basic usage.
@@ -35,9 +35,9 @@ Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "crypto-price": {
+    "crypto-toolkit": {
       "command": "npx",
-      "args": ["-y", "mcp-crypto-price"]
+      "args": ["-y", "mcp-crypto-toolkit"]
     }
   }
 }
@@ -48,9 +48,9 @@ Or use a local build:
 ```json
 {
   "mcpServers": {
-    "crypto-price": {
+    "crypto-toolkit": {
       "command": "node",
-      "args": ["/ABSOLUTE/PATH/TO/mcp-crypto-price/dist/index.js"]
+      "args": ["/ABSOLUTE/PATH/TO/mcp-crypto-toolkit/dist/index.js"]
     }
   }
 }
@@ -63,9 +63,9 @@ Add to `.cursor/mcp.json`:
 ```json
 {
   "mcpServers": {
-    "crypto-price": {
+    "crypto-toolkit": {
       "command": "npx",
-      "args": ["-y", "mcp-crypto-price"]
+      "args": ["-y", "mcp-crypto-toolkit"]
     }
   }
 }
@@ -78,9 +78,9 @@ Add to your MCP configuration:
 ```json
 {
   "mcpServers": {
-    "crypto-price": {
+    "crypto-toolkit": {
       "command": "npx",
-      "args": ["-y", "mcp-crypto-price"]
+      "args": ["-y", "mcp-crypto-toolkit"]
     }
   }
 }
@@ -107,8 +107,8 @@ Add to your MCP configuration:
 ## Development
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/mcp-crypto-price
-cd mcp-crypto-price
+git clone https://github.com/nad33mahm3d/mcp-crypto-toolkit
+cd mcp-crypto-toolkit
 npm install
 npm run build
 npm run inspector   # Test with MCP Inspector
