@@ -1,0 +1,14 @@
+node_modules
+dist
+.git
+.github
+coverage
+*.log
+.env
+.env.*
+demo.gif
+demo.md
+tests
+*.ts
+!tsconfig.json
+!tsup.config.ts

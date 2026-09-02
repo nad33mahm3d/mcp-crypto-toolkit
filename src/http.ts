@@ -1,15 +1,24 @@
 import { createServer } from "node:http";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { registerTools } from "./server.js";
 
 const PORT = Number(process.env.PORT ?? 3000);
+const packageJson = JSON.parse(
+  readFileSync(
+    join(dirname(fileURLToPath(import.meta.url)), "../package.json"),
+    "utf8",
+  ),
+) as { version: string };
 
 function createMcpServer() {
   const server = new Server(
     {
       name: "mcp-crypto-toolkit",
-      version: "1.1.0",
+      version: packageJson.version,
       description:
         "Live crypto prices, conversion, gas tracker, portfolio tools and calculators for AI agents",
     },
