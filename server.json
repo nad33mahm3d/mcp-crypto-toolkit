@@ -1,0 +1,36 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.nad33mahm3d/mcp-crypto-toolkit",
+  "description": "Live crypto prices, conversion, gas tracker, portfolio tools, and calculators for AI agents.",
+  "repository": {
+    "url": "https://github.com/nad33mahm3d/mcp-crypto-toolkit",
+    "source": "github"
+  },
+  "version": "1.2.3",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "mcp-crypto-toolkit",
+      "version": "1.2.3",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "COINGECKO_API_KEY",
+          "description": "Optional CoinGecko API key for higher rate limits",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true
+        },
+        {
+          "name": "COINGECKO_PRO",
+          "description": "Set to 1 to use CoinGecko Pro header with your key",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# Smithery config — https://smithery.ai/docs
+# Enables one-click install for the published npm package (stdio).
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      coingeckoApiKey:
+        type: string
+        title: CoinGecko API Key
+        description: Optional. Higher CoinGecko rate limits (not required for basic use).
+    required: []
+  commandFunction: |-
+    (config) => ({
+      command: "npx",
+      args: ["-y", "mcp-crypto-toolkit"],
+      env: {
+        ...(config.coingeckoApiKey
+          ? { COINGECKO_API_KEY: config.coingeckoApiKey }
+          : {})
+      }
+    })
