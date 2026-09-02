@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/nad33mahm3d/mcp-crypto-toolkit/security/advisories/new
+    about: Please report security issues privately (see SECURITY.md).
+  - name: Discussions / questions
+    url: https://github.com/nad33mahm3d/mcp-crypto-toolkit/issues
+    about: For usage questions, open an issue with clear context.

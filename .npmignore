@@ -1,0 +1,22 @@
+# Prefer package.json "files"; keep this minimal as defense in depth.
+.env
+.env.*
+*.log
+coverage
+node_modules
+src
+tests
+scripts
+.github
+.git
+*.ts
+!dist/**
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+demo.gif
+demo.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+SUPPORT.md

@@ -126,6 +126,22 @@ npm run inspector
 
 Without gas API keys, gas falls back to Blocknative then static estimates.
 
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, PR guidelines, and the release process.
+
+- [Code of Conduct](./CODE_OF_CONDUCT.md)
+- [Security Policy](./SECURITY.md)
+- [Support](./SUPPORT.md)
+- [Changelog](./CHANGELOG.md)
+
+### Releasing (maintainers)
+
+1. Add `NPM_TOKEN` repo secret (npm Automation token)
+2. Update `CHANGELOG.md`
+3. Create a GitHub Release with tag `vX.Y.Z`
+4. Actions publishes to npm with provenance automatically
+
 ## API Credits
 
 - [CoinGecko](https://www.coingecko.com/) — prices & markets (free tier, no key required)

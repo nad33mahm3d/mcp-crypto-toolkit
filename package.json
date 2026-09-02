@@ -3,9 +3,19 @@
   "version": "1.1.0",
   "description": "Live crypto prices, conversion, gas tracker, portfolio tools and calculators for AI agents - MCP Server",
   "type": "module",
-  "bin": { "mcp-crypto-toolkit": "./dist/index.js" },
-  "files": ["dist"],
+  "bin": {
+    "mcp-crypto-toolkit": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "main": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -14,7 +24,9 @@
     "start:http": "node dist/http.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "inspector": "npx @modelcontextprotocol/inspector dist/index.js"
+    "inspector": "npx @modelcontextprotocol/inspector dist/index.js",
+    "prepack": "npm run build",
+    "pack:check": "npm pack --dry-run"
   },
   "keywords": [
     "mcp",
@@ -31,9 +43,16 @@
   ],
   "license": "MIT",
   "author": "Nadeem Ahmed <ebox.nadeem@gmail.com>",
+  "homepage": "https://github.com/nad33mahm3d/mcp-crypto-toolkit#readme",
+  "bugs": {
+    "url": "https://github.com/nad33mahm3d/mcp-crypto-toolkit/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nad33mahm3d/mcp-crypto-toolkit"
+    "url": "git+https://github.com/nad33mahm3d/mcp-crypto-toolkit.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "node": ">=18"
