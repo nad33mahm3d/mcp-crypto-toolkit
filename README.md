@@ -9,7 +9,7 @@
 
 Ask Claude: *What's ETH doing? Top 10 coins? Gas on Base? What's my portfolio worth?*
 
-![Demo](./demo.gif)
+![Demo](https://raw.githubusercontent.com/nad33mahm3d/mcp-crypto-toolkit/main/demo.gif)
 
 ## Features
 
