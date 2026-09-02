@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-03
+
 ### Changed
 
-- Upgrade TypeScript to 7 and Vitest to 4
-- Require Node.js 20+ (Vitest 4 dependency)
-- Disable tsup DTS emit (incompatible with TypeScript 7; runtime bundles unchanged)
+- Upgrade Zod to 4 (runtime dependency)
+- Upgrade TypeScript to 7 and Vitest to 4 (dev)
+- Require Node.js 20+ (`engines` and CI)
+- GitHub Actions: checkout v7, setup-node v7
+- Disable tsup DTS emit (TS 7 compatibility; JS bundles unchanged)
 
 ## [1.1.0] - 2026-09-03
 
@@ -41,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Binance P2P PKR path for conversions
 - MIT license and README
 
-[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/releases/tag/v1.0.0
