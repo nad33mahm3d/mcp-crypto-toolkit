@@ -68,32 +68,29 @@ npm run start:http
 # POST http://localhost:3000/mcp
 ```
 
-#### Deploy (Smithery / remote MCP)
+#### Deploy (Smithery / remote MCP) — optional
 
-Host the HTTP transport, then publish `https://YOUR-HOST/mcp` on [Smithery](https://smithery.ai/new).
+**You do not need paid hosting for discoverability.** This server already installs via `npx -y mcp-crypto-toolkit` (stdio) and is listed on the [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.nad33mahm3d/mcp-crypto-toolkit). Glama and PulseMCP ingest from there — no Fly/Railway bill required.
 
-**Fly.io**
+Only deploy HTTP if you want a **remote** `/mcp` endpoint (e.g. Smithery URL publish).
 
-```bash
-fly launch --no-deploy   # pick app name + region
-fly deploy
-fly open /health
-```
+**Render (free — no credit card)**
 
-**Railway**
+1. Fork/connect repo at [render.com](https://render.com)
+2. New → Blueprint → point at this repo (`render.yaml` uses the **Free** plan)
+3. After deploy: `https://YOUR-SERVICE.onrender.com/health`
+4. Smithery: publish `https://YOUR-SERVICE.onrender.com/mcp`
 
-```bash
-railway login
-railway init
-railway up
-```
+Free tier sleeps after ~15 min idle; first request may take ~30s to wake.
 
-**Docker**
+**Docker (local / your own VPS)**
 
 ```bash
 docker build -t mcp-crypto-toolkit .
 docker run -p 3000:3000 mcp-crypto-toolkit
 ```
+
+**Paid PaaS (if you outgrow free tier):** Fly.io and Railway work with the included `fly.toml` / `railway.toml` but are **not free** long-term.
 
 Optional env: `COINGECKO_API_KEY`, `COINGECKO_PRO=1`, gas oracle keys (see table below).
 
