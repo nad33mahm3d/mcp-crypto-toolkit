@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Upgrade TypeScript to 7 and Vitest to 4
+- Require Node.js 20+ (Vitest 4 dependency)
+- Disable tsup DTS emit (incompatible with TypeScript 7; runtime bundles unchanged)
+
 ## [1.1.0] - 2026-09-03
 
 ### Added
