@@ -128,12 +128,12 @@ Without gas API keys, gas falls back to Blocknative then static estimates.
 
 ## Contributing
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, PR guidelines, and the release process.
+See [CONTRIBUTING.md](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/CONTRIBUTING.md) for setup, PR guidelines, and the release process.
 
-- [Code of Conduct](./CODE_OF_CONDUCT.md)
-- [Security Policy](./SECURITY.md)
-- [Support](./SUPPORT.md)
-- [Changelog](./CHANGELOG.md)
+- [Code of Conduct](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/CODE_OF_CONDUCT.md)
+- [Security Policy](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/SECURITY.md)
+- [Support](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/SUPPORT.md)
+- [Changelog](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/CHANGELOG.md)
 
 ### Releasing (maintainers)
 
@@ -151,4 +151,4 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup, PR guidelines, and the relea
 
 ## License
 
-MIT — see [LICENSE](./LICENSE)
+MIT — see [LICENSE](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/LICENSE)
