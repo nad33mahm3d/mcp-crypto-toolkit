@@ -33,7 +33,7 @@ jobs:
             echo "Release tag must be like v1.2.3 (got: $TAG)"
             exit 1
           fi
-          npm version "$VERSION" --no-git-tag-version
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
           echo "Publishing version $VERSION"
 
       - name: Test
