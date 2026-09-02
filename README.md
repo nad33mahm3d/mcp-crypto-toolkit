@@ -68,6 +68,35 @@ npm run start:http
 # POST http://localhost:3000/mcp
 ```
 
+#### Deploy (Smithery / remote MCP)
+
+Host the HTTP transport, then publish `https://YOUR-HOST/mcp` on [Smithery](https://smithery.ai/new).
+
+**Fly.io**
+
+```bash
+fly launch --no-deploy   # pick app name + region
+fly deploy
+fly open /health
+```
+
+**Railway**
+
+```bash
+railway login
+railway init
+railway up
+```
+
+**Docker**
+
+```bash
+docker build -t mcp-crypto-toolkit .
+docker run -p 3000:3000 mcp-crypto-toolkit
+```
+
+Optional env: `COINGECKO_API_KEY`, `COINGECKO_PRO=1`, gas oracle keys (see table below).
+
 ## Tools (9)
 
 | Tool | Description |
