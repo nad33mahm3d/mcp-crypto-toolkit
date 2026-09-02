@@ -7,6 +7,10 @@ export const profitCalcSchema = z.object({
   quantity: z.number(),
   buy_fee_percent: z.number().default(0),
   sell_fee_percent: z.number().default(0),
+  network_fee: z
+    .number()
+    .default(0)
+    .describe("Fixed network/gas fee in the same unit as prices (e.g. USD)"),
 });
 
 export type ProfitCalcInput = z.infer<typeof profitCalcSchema>;
@@ -17,17 +21,21 @@ export function profitCalc(input: ProfitCalcInput) {
   const quantity = input.quantity;
   const buy_fee_percent = input.buy_fee_percent ?? 0;
   const sell_fee_percent = input.sell_fee_percent ?? 0;
+  const network_fee = input.network_fee ?? 0;
 
   const buyFeeMultiplier = 1 + buy_fee_percent / 100;
   const sellFeeMultiplier = 1 - sell_fee_percent / 100;
 
   const invested = buy_price * quantity * buyFeeMultiplier;
   const returned = sell_price * quantity * sellFeeMultiplier;
-  const profit = returned - invested;
-  const roi = invested > 0 ? (profit / invested) * 100 : 0;
+  const profitBeforeNetwork = returned - invested;
+  const profit = profitBeforeNetwork - network_fee;
+  const totalCost = invested + network_fee;
+  const roi = totalCost > 0 ? (profit / totalCost) * 100 : 0;
   const breakEven =
     sellFeeMultiplier > 0
-      ? (buy_price * buyFeeMultiplier) / sellFeeMultiplier
+      ? (buy_price * buyFeeMultiplier) / sellFeeMultiplier +
+        network_fee / (quantity * sellFeeMultiplier || 1)
       : buy_price * buyFeeMultiplier;
 
   return {
@@ -36,9 +44,11 @@ export function profitCalc(input: ProfitCalcInput) {
     quantity: formatNumber(quantity, 8),
     buy_fee_percent: formatNumber(buy_fee_percent, 4),
     sell_fee_percent: formatNumber(sell_fee_percent, 4),
+    network_fee: formatNumber(network_fee, 4),
     invested: formatNumber(invested, 2),
     returned: formatNumber(returned, 2),
     profit: formatNumber(profit, 2),
+    profit_before_network_fee: formatNumber(profitBeforeNetwork, 2),
     roi_percent: formatPercent(roi),
     break_even_price: formatNumber(breakEven, 2),
     is_profit: profit >= 0,

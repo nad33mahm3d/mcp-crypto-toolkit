@@ -58,4 +58,5 @@ export const TTL = {
   GAS: 15_000,
   HISTORICAL: 3_600_000,
   PKR: 300_000,
+  SEARCH: 120_000,
 } as const;

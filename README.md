@@ -3,20 +3,28 @@
 [![npm version](https://img.shields.io/npm/v/mcp-crypto-toolkit.svg)](https://www.npmjs.com/package/mcp-crypto-toolkit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP](https://img.shields.io/badge/MCP-Server-blue.svg)](https://modelcontextprotocol.io)
+[![CI](https://github.com/nad33mahm3d/mcp-crypto-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/nad33mahm3d/mcp-crypto-toolkit/actions/workflows/ci.yml)
 
-**Live crypto prices, PKR conversion, gas tracker, and calculators for AI agents.**
+**Live crypto prices, conversion, gas tracker, portfolio tools, and calculators for AI agents.**
 
-Ask Claude: *What's 0.5 BTC in PKR? What's ETH gas now?*
+Ask Claude: *What's ETH doing? Top 10 coins? Gas on Base? What's my portfolio worth?*
 
 ![Demo](./demo.gif)
 
 ## Features
 
-- Live cryptocurrency prices via CoinGecko (100+ coins)
-- PKR conversion with Binance P2P rates (fallback to CoinGecko)
-- EVM gas tracker for Ethereum, BNB, Polygon, Arbitrum, and Base
-- Profit/loss calculator with fees and break-even
-- Historical price lookup with $1,000 investment comparison
+- Live prices with market cap, volume, rank, ATH/ATL (CoinGecko)
+- Convert between crypto and fiat (optimized PKR via Binance P2P when needed)
+- Search coins by name/symbol
+- Top coins + gainers/losers snapshot
+- Compare 2–5 coins side by side
+- Portfolio valuation (batch holdings)
+- Historical point-in-time + range charts (7d/30d/…)
+- EVM gas tracker with USD transfer estimates
+- Profit/loss calculator with exchange + network fees
+- MCP prompts for common workflows
+- **Zero config** — no API key required (optional `COINGECKO_API_KEY` for higher limits)
+- stdio + HTTP transports
 
 ## Quick Install
 
@@ -24,13 +32,9 @@ Ask Claude: *What's 0.5 BTC in PKR? What's ETH gas now?*
 npx -y mcp-crypto-toolkit
 ```
 
-Zero config. No API keys required for basic usage.
-
 ## Installation
 
-### Claude Desktop
-
-Add to `claude_desktop_config.json`:
+### Claude Desktop / Cursor / Windsurf
 
 ```json
 {
@@ -43,7 +47,7 @@ Add to `claude_desktop_config.json`:
 }
 ```
 
-Or use a local build:
+Local build:
 
 ```json
 {
@@ -56,53 +60,48 @@ Or use a local build:
 }
 ```
 
-### Cursor
+### HTTP server
 
-Add to `.cursor/mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "crypto-toolkit": {
-      "command": "npx",
-      "args": ["-y", "mcp-crypto-toolkit"]
-    }
-  }
-}
+```bash
+npm run build
+npm run start:http
+# POST http://localhost:3000/mcp
 ```
 
-### Windsurf
-
-Add to your MCP configuration:
-
-```json
-{
-  "mcpServers": {
-    "crypto-toolkit": {
-      "command": "npx",
-      "args": ["-y", "mcp-crypto-toolkit"]
-    }
-  }
-}
-```
-
-## Tools
+## Tools (9)
 
 | Tool | Description |
 |------|-------------|
-| `get_price` | Live price of any crypto in any fiat (including PKR) |
-| `convert` | Convert between crypto and fiat with optimized PKR support |
-| `gas_tracker` | Live gas fees for EVM chains |
-| `profit_calc` | Calculate profit/loss, ROI, and break-even |
-| `historical_price` | Historical price on a specific date (DD-MM-YYYY) |
+| `get_price` | Live price + market cap, volume, rank, ATH/ATL |
+| `convert` | Crypto ↔ fiat/crypto conversion |
+| `search_coin` | Search by name or symbol |
+| `top_coins` | Top N by market cap/volume + gainers/losers |
+| `compare_coins` | Side-by-side compare 2–5 coins |
+| `portfolio_value` | Value a list of holdings |
+| `historical_price` | Point date or range chart + investment snapshot |
+| `gas_tracker` | Gas fees + estimated transfer cost (USD) |
+| `profit_calc` | P&L, ROI, break-even (fees + network fee) |
 
-## Example Prompts
+## Prompts
 
-1. *What's the current price of Bitcoin in PKR?*
-2. *Convert 0.5 ETH to USD*
-3. *What are Ethereum gas fees right now?*
-4. *I bought 0.5 BTC at $60,000 and sold at $70,000 — what's my profit?*
-5. *What was the price of Solana on 01-01-2024 and what would $1000 invested then be worth now?*
+| Prompt | Purpose |
+|--------|---------|
+| `market-overview` | Top coins + market tone |
+| `analyze-coin` | Price + 7d trend for one coin |
+| `trade-pnl` | Walk through a P&L calc |
+| `gas-check` | Gas + transfer cost advice |
+
+## Example prompts
+
+1. *What's the current price of Bitcoin and its market cap?*
+2. *Search for coins matching "pepe"*
+3. *Show top 10 coins and today's gainers*
+4. *Compare BTC, ETH, and SOL*
+5. *Value my portfolio: 0.5 BTC and 2 ETH in USD*
+6. *What was ETH on 01-01-2024, and what would $1000 then be worth now?*
+7. *Show SOL's 30-day price range*
+8. *What's gas on Base right now in USD?*
+9. *I bought at 100, sold at 120, qty 10, 0.1% fees — profit?*
 
 ## Development
 
@@ -110,28 +109,29 @@ Add to your MCP configuration:
 git clone https://github.com/nad33mahm3d/mcp-crypto-toolkit
 cd mcp-crypto-toolkit
 npm install
+npm test
 npm run build
-npm run inspector   # Test with MCP Inspector
+npm run inspector
 ```
 
-### Optional API Keys
+### Optional env
 
-For more reliable gas tracking, set these environment variables:
+| Variable | Purpose |
+|----------|---------|
+| `COINGECKO_API_KEY` | Higher CoinGecko rate limits (still optional) |
+| `COINGECKO_PRO=1` | Use Pro header with your key |
+| `ETHERSCAN_API_KEY` / `BSCSCAN_API_KEY` / … | Better gas oracles |
+| `OPTIMISM_API_KEY` | Optimism gas oracle |
+| `PORT` | HTTP server port (default 3000) |
 
-- `ETHERSCAN_API_KEY` — Ethereum gas oracle
-- `BSCSCAN_API_KEY` — BNB Chain gas oracle
-- `POLYGONSCAN_API_KEY` — Polygon gas oracle
-- `ARBISCAN_API_KEY` — Arbitrum gas oracle
-- `BASESCAN_API_KEY` — Base gas oracle
-
-Without API keys, gas data falls back to Blocknative and static estimates.
+Without gas API keys, gas falls back to Blocknative then static estimates.
 
 ## API Credits
 
-- [CoinGecko](https://www.coingecko.com/) — Price data (free tier, no key required)
-- [Binance P2P](https://p2p.binance.com/) — USDT/PKR rates
-- [Etherscan](https://etherscan.io/) / [BscScan](https://bscscan.com/) — Gas oracles (optional API keys)
-- [Blocknative](https://www.blocknative.com/) — Gas price fallback
+- [CoinGecko](https://www.coingecko.com/) — prices & markets (free tier, no key required)
+- [Binance P2P](https://p2p.binance.com/) — USDT/PKR when converting to PKR
+- [Etherscan](https://etherscan.io/) family — optional gas oracles
+- [Blocknative](https://www.blocknative.com/) — gas fallback
 
 ## License
 

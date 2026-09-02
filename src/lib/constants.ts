@@ -229,7 +229,21 @@ export const GAS_CHAIN_IDS: Record<string, number> = {
   polygon: 137,
   arbitrum: 42161,
   base: 8453,
+  optimism: 10,
 };
+
+/** Native gas token CoinGecko id per chain */
+export const GAS_NATIVE_COIN: Record<string, string> = {
+  eth: "ethereum",
+  bnb: "binancecoin",
+  polygon: "matic-network",
+  arbitrum: "ethereum",
+  base: "ethereum",
+  optimism: "ethereum",
+};
+
+/** Typical gas units for a simple transfer */
+export const SIMPLE_TRANSFER_GAS = 21_000;
 
 export const GAS_SCAN_APIS: Partial<
   Record<string, { url: string; apiKeyEnv: string }>
@@ -245,6 +259,10 @@ export const GAS_SCAN_APIS: Partial<
     apiKeyEnv: "ARBISCAN_API_KEY",
   },
   base: { url: "https://api.basescan.org/api", apiKeyEnv: "BASESCAN_API_KEY" },
+  optimism: {
+    url: "https://api-optimistic.etherscan.io/api",
+    apiKeyEnv: "OPTIMISM_API_KEY",
+  },
 };
 
 export const USER_AGENT =

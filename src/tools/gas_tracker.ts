@@ -3,14 +3,19 @@ import { gasCache, TTL } from "../lib/cache.js";
 import {
   GAS_CHAIN_IDS,
   GAS_SCAN_APIS,
+  GAS_NATIVE_COIN,
+  SIMPLE_TRANSFER_GAS,
   USER_AGENT,
 } from "../lib/constants.js";
-import { formatNumber } from "../lib/coingecko.js";
+import {
+  formatNumber,
+  getCoinPrice,
+} from "../lib/coingecko.js";
+
+const CHAINS = ["eth", "bnb", "polygon", "arbitrum", "base", "optimism"] as const;
 
 export const gasTrackerSchema = z.object({
-  chain: z
-    .enum(["eth", "bnb", "polygon", "arbitrum", "base"])
-    .default("eth"),
+  chain: z.enum(CHAINS).default("eth"),
 });
 
 export type GasTrackerInput = z.infer<typeof gasTrackerSchema>;
@@ -22,6 +27,16 @@ interface GasResult {
   high: number;
   baseFee: number | null;
   unit: "gwei";
+  estimated_transfer: {
+    gas_units: number;
+    cost_native_low: number;
+    cost_native_average: number;
+    cost_native_high: number;
+    cost_usd_low: number | null;
+    cost_usd_average: number | null;
+    cost_usd_high: number | null;
+    native_token: string;
+  };
   last_updated: string;
   source: string;
 }
@@ -33,32 +48,70 @@ export async function gasTracker(input: GasTrackerInput): Promise<GasResult> {
   const cached = gasCache.get<GasResult>(cacheKey);
   if (cached) return cached;
 
-  let result: GasResult | undefined;
+  let base: Omit<GasResult, "estimated_transfer"> | undefined;
 
   const scanConfig = GAS_SCAN_APIS[chain];
   const apiKey = scanConfig ? process.env[scanConfig.apiKeyEnv] : undefined;
 
   if (scanConfig && apiKey) {
     try {
-      result = await fetchScanGasOracle(chain, scanConfig.url, apiKey);
+      base = await fetchScanGasOracle(chain, scanConfig.url, apiKey);
     } catch {
-      // fall through to blocknative
+      // fall through
     }
   }
 
-  if (!result) {
-    result = await fetchBlocknativeGas(chain);
+  if (!base) {
+    base = await fetchBlocknativeGas(chain);
   }
 
+  const result = await withUsdEstimate(base);
   gasCache.set(cacheKey, result, TTL.GAS);
   return result;
+}
+
+function nativeCost(gwei: number): number {
+  return (gwei * SIMPLE_TRANSFER_GAS) / 1e9;
+}
+
+async function withUsdEstimate(
+  base: Omit<GasResult, "estimated_transfer">,
+): Promise<GasResult> {
+  const nativeId = GAS_NATIVE_COIN[base.chain] ?? "ethereum";
+  let usdPrice: number | null = null;
+  try {
+    usdPrice = (await getCoinPrice(nativeId, "usd")).price;
+  } catch {
+    usdPrice = null;
+  }
+
+  const lowNative = nativeCost(base.low);
+  const avgNative = nativeCost(base.average);
+  const highNative = nativeCost(base.high);
+
+  return {
+    ...base,
+    estimated_transfer: {
+      gas_units: SIMPLE_TRANSFER_GAS,
+      cost_native_low: formatNumber(lowNative, 8),
+      cost_native_average: formatNumber(avgNative, 8),
+      cost_native_high: formatNumber(highNative, 8),
+      cost_usd_low:
+        usdPrice !== null ? formatNumber(lowNative * usdPrice, 4) : null,
+      cost_usd_average:
+        usdPrice !== null ? formatNumber(avgNative * usdPrice, 4) : null,
+      cost_usd_high:
+        usdPrice !== null ? formatNumber(highNative * usdPrice, 4) : null,
+      native_token: nativeId,
+    },
+  };
 }
 
 async function fetchScanGasOracle(
   chain: string,
   baseUrl: string,
   apiKey: string,
-): Promise<GasResult> {
+): Promise<Omit<GasResult, "estimated_transfer">> {
   const url = `${baseUrl}?module=gastracker&action=gasoracle&apikey=${apiKey}`;
   const response = await fetch(url, {
     headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
@@ -96,7 +149,9 @@ async function fetchScanGasOracle(
   };
 }
 
-async function fetchBlocknativeGas(chain: string): Promise<GasResult> {
+async function fetchBlocknativeGas(
+  chain: string,
+): Promise<Omit<GasResult, "estimated_transfer">> {
   const chainId = GAS_CHAIN_IDS[chain];
   if (!chainId) {
     throw new Error(`Unsupported chain: ${chain}`);
@@ -119,8 +174,6 @@ async function fetchBlocknativeGas(chain: string): Promise<GasResult> {
           baseFeePerGas?: number;
           estimatedPrices?: Array<{
             confidence: number;
-            maxPriorityFeePerGas: number;
-            maxFeePerGas: number;
             price: number;
           }>;
         }>;
@@ -151,38 +204,28 @@ async function fetchBlocknativeGas(chain: string): Promise<GasResult> {
       }
     }
   } catch {
-    // fall through to static estimate
+    // fall through
   }
 
-  return fetchCoinGeckoGasEstimate(chain);
+  return fetchStaticGasEstimate(chain);
 }
 
-async function fetchCoinGeckoGasEstimate(chain: string): Promise<GasResult> {
-  const chainGasMap: Record<string, string> = {
-    eth: "ethereum",
-    bnb: "binance-smart-chain",
-    polygon: "polygon-pos",
-    arbitrum: "arbitrum-one",
-    base: "base",
-  };
-
-  const platform = chainGasMap[chain];
-  const response = await fetch(
-    `https://api.coingecko.com/api/v3/simple/price?ids=${platform}&vs_currencies=usd&include_last_updated_at=true`,
-    {
-      headers: { "User-Agent": USER_AGENT, Accept: "application/json" },
-    },
-  );
-
-  const fallbackGas: Record<string, { low: number; average: number; high: number }> = {
+function fetchStaticGasEstimate(
+  chain: string,
+): Omit<GasResult, "estimated_transfer"> {
+  const fallbackGas: Record<
+    string,
+    { low: number; average: number; high: number }
+  > = {
     eth: { low: 15, average: 25, high: 40 },
     bnb: { low: 3, average: 5, high: 8 },
     polygon: { low: 30, average: 50, high: 80 },
     arbitrum: { low: 0.1, average: 0.2, high: 0.5 },
     base: { low: 0.01, average: 0.05, high: 0.1 },
+    optimism: { low: 0.01, average: 0.05, high: 0.1 },
   };
 
-  const estimate = fallbackGas[chain] ?? fallbackGas.eth;
+  const estimate = fallbackGas[chain] ?? fallbackGas.eth!;
 
   return {
     chain,
@@ -192,6 +235,6 @@ async function fetchCoinGeckoGasEstimate(chain: string): Promise<GasResult> {
     baseFee: null,
     unit: "gwei",
     last_updated: new Date().toISOString(),
-    source: response.ok ? "coingecko_estimate" : "static_estimate",
+    source: "static_estimate",
   };
 }

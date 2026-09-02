@@ -1,6 +1,8 @@
 import { COIN_MAP, USER_AGENT } from "./constants.js";
 import { priceCache, historicalCache, TTL } from "./cache.js";
 
+const COINGECKO_BASE = "https://api.coingecko.com/api/v3";
+
 export class CoinGeckoError extends Error {
   constructor(
     message: string,
@@ -17,6 +19,16 @@ export function resolveCoinId(input: string): string {
   return COIN_MAP[normalized] ?? normalized;
 }
 
+function authHeaders(): Record<string, string> {
+  const key = process.env.COINGECKO_API_KEY?.trim();
+  if (!key) return {};
+  // Demo keys use x-cg-demo-api-key; Pro keys use x-cg-pro-api-key
+  if (key.startsWith("CG-") && process.env.COINGECKO_PRO === "1") {
+    return { "x-cg-pro-api-key": key };
+  }
+  return { "x-cg-demo-api-key": key };
+}
+
 export async function fetchWithRetry(
   url: string,
   options: RequestInit = {},
@@ -31,18 +43,19 @@ export async function fetchWithRetry(
         headers: {
           Accept: "application/json",
           "User-Agent": USER_AGENT,
+          ...authHeaders(),
           ...(options.headers ?? {}),
         },
       });
 
       if (response.status === 429) {
-        const waitMs = Math.min(1000 * 2 ** attempt, 8000);
+        const waitMs = Math.min(1000 * 2 ** attempt, 10_000);
         if (attempt < retries - 1) {
           await sleep(waitMs);
           continue;
         }
         throw new CoinGeckoError(
-          "CoinGecko rate limit exceeded (429). Please try again in a few seconds.",
+          "CoinGecko rate limit exceeded (429). Wait a few seconds, or set COINGECKO_API_KEY for higher limits.",
           429,
           true,
         );
@@ -52,6 +65,7 @@ export async function fetchWithRetry(
         throw new CoinGeckoError(
           `CoinGecko API error: ${response.status} ${response.statusText}`,
           response.status,
+          response.status >= 500,
         );
       }
 
@@ -75,6 +89,30 @@ export interface SimplePriceResult {
   lastUpdated?: string;
 }
 
+export interface MarketCoin {
+  id: string;
+  symbol: string;
+  name: string;
+  current_price: number;
+  market_cap: number | null;
+  market_cap_rank: number | null;
+  total_volume: number | null;
+  high_24h: number | null;
+  low_24h: number | null;
+  price_change_percentage_24h: number | null;
+  ath: number | null;
+  ath_change_percentage: number | null;
+  atl: number | null;
+  last_updated: string | null;
+}
+
+export interface SearchCoinResult {
+  id: string;
+  name: string;
+  symbol: string;
+  market_cap_rank: number | null;
+}
+
 export async function getSimplePrice(
   ids: string[],
   vsCurrencies: string[],
@@ -94,7 +132,7 @@ export async function getSimplePrice(
   });
 
   const response = await fetchWithRetry(
-    `https://api.coingecko.com/api/v3/simple/price?${params}`,
+    `${COINGECKO_BASE}/simple/price?${params}`,
   );
   const data = (await response.json()) as Record<
     string,
@@ -129,12 +167,98 @@ export async function getCoinPrice(
   return {
     id,
     price: Number(price),
-    change24h: coinData[changeKey] !== undefined ? Number(coinData[changeKey]) : undefined,
+    change24h:
+      coinData[changeKey] !== undefined ? Number(coinData[changeKey]) : undefined,
     lastUpdated:
       coinData[lastUpdatedKey] !== undefined
         ? new Date(Number(coinData[lastUpdatedKey]) * 1000).toISOString()
         : new Date().toISOString(),
   };
+}
+
+export async function getMarkets(
+  vsCurrency: string,
+  options: {
+    ids?: string[];
+    perPage?: number;
+    page?: number;
+    order?: string;
+    sparkline?: boolean;
+  } = {},
+): Promise<MarketCoin[]> {
+  const vs = vsCurrency.toLowerCase();
+  const perPage = options.perPage ?? 10;
+  const page = options.page ?? 1;
+  const order = options.order ?? "market_cap_desc";
+  const ids = options.ids?.map(resolveCoinId);
+
+  const cacheKey = `markets:${vs}:${ids?.sort().join(",") ?? "all"}:${perPage}:${page}:${order}`;
+  const cached = priceCache.get<MarketCoin[]>(cacheKey);
+  if (cached) return cached;
+
+  const params = new URLSearchParams({
+    vs_currency: vs,
+    order,
+    per_page: String(perPage),
+    page: String(page),
+    sparkline: "false",
+    price_change_percentage: "24h",
+  });
+  if (ids?.length) params.set("ids", ids.join(","));
+
+  const response = await fetchWithRetry(
+    `${COINGECKO_BASE}/coins/markets?${params}`,
+  );
+  const data = (await response.json()) as MarketCoin[];
+  priceCache.set(cacheKey, data, TTL.PRICE);
+  return data;
+}
+
+export async function getRichCoinPrice(
+  coin: string,
+  vsCurrency: string,
+): Promise<MarketCoin> {
+  const id = resolveCoinId(coin);
+  const markets = await getMarkets(vsCurrency, { ids: [id], perPage: 1 });
+  const row = markets[0];
+  if (!row) {
+    throw new CoinGeckoError(`Coin not found: ${coin} (id: ${id})`);
+  }
+  return row;
+}
+
+export async function searchCoins(
+  query: string,
+  limit = 10,
+): Promise<SearchCoinResult[]> {
+  const q = query.trim();
+  if (!q) return [];
+
+  const cacheKey = `search:${q.toLowerCase()}:${limit}`;
+  const cached = priceCache.get<SearchCoinResult[]>(cacheKey);
+  if (cached) return cached;
+
+  const response = await fetchWithRetry(
+    `${COINGECKO_BASE}/search?query=${encodeURIComponent(q)}`,
+  );
+  const data = (await response.json()) as {
+    coins?: Array<{
+      id: string;
+      name: string;
+      symbol: string;
+      market_cap_rank: number | null;
+    }>;
+  };
+
+  const results = (data.coins ?? []).slice(0, limit).map((c) => ({
+    id: c.id,
+    name: c.name,
+    symbol: c.symbol,
+    market_cap_rank: c.market_cap_rank,
+  }));
+
+  priceCache.set(cacheKey, results, TTL.PRICE);
+  return results;
 }
 
 export interface HistoricalPriceResult {
@@ -157,7 +281,7 @@ export async function getHistoricalPrice(
   if (cached) return cached;
 
   const response = await fetchWithRetry(
-    `https://api.coingecko.com/api/v3/coins/${id}/history?date=${encodeURIComponent(date)}&localization=false`,
+    `${COINGECKO_BASE}/coins/${id}/history?date=${encodeURIComponent(date)}&localization=false`,
   );
   const data = (await response.json()) as {
     market_data?: { current_price?: Record<string, number> };
@@ -181,6 +305,51 @@ export async function getHistoricalPrice(
   return result;
 }
 
+export interface MarketChartPoint {
+  timestamp: number;
+  price: number;
+}
+
+export async function getMarketChart(
+  coin: string,
+  vsCurrency: string,
+  days: number | string,
+): Promise<{ id: string; vs: string; days: string; prices: MarketChartPoint[] }> {
+  const id = resolveCoinId(coin);
+  const vs = vsCurrency.toLowerCase();
+  const daysStr = String(days);
+  const cacheKey = `chart:${id}:${vs}:${daysStr}`;
+
+  const cached = historicalCache.get<{
+    id: string;
+    vs: string;
+    days: string;
+    prices: MarketChartPoint[];
+  }>(cacheKey);
+  if (cached) return cached;
+
+  const params = new URLSearchParams({
+    vs_currency: vs,
+    days: daysStr,
+  });
+
+  const response = await fetchWithRetry(
+    `${COINGECKO_BASE}/coins/${id}/market_chart?${params}`,
+  );
+  const data = (await response.json()) as {
+    prices?: Array<[number, number]>;
+  };
+
+  const prices = (data.prices ?? []).map(([timestamp, price]) => ({
+    timestamp,
+    price,
+  }));
+
+  const result = { id, vs, days: daysStr, prices };
+  historicalCache.set(cacheKey, result, TTL.HISTORICAL);
+  return result;
+}
+
 export async function getCurrentPriceForComparison(
   coin: string,
   vsCurrency: string,
@@ -194,9 +363,18 @@ function sleep(ms: number): Promise<void> {
 }
 
 export function formatNumber(value: number, decimals = 2): number {
+  if (!Number.isFinite(value)) return 0;
   return Number(value.toFixed(decimals));
 }
 
 export function formatPercent(value: number, decimals = 2): number {
+  if (!Number.isFinite(value)) return 0;
   return Number(value.toFixed(decimals));
+}
+
+export function priceDecimals(vs: string, price: number): number {
+  if (vs === "btc" || vs === "eth") return 8;
+  if (price >= 1) return 2;
+  if (price >= 0.01) return 4;
+  return 8;
 }
