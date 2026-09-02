@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-09-03
+
+### Fixed
+
+- README community doc links on npm: point to GitHub URLs (files not included in the npm tarball)
+
 ## [1.2.1] - 2026-09-03
 
 ### Fixed
@@ -51,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Binance P2P PKR path for conversions
 - MIT license and README
 
-[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.0.0...v1.1.0
