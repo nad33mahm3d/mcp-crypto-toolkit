@@ -24,6 +24,15 @@ jobs:
           node-version: "24"
           package-manager-cache: false
 
+      - name: Ensure npm supports OIDC
+        run: |
+          npm install -g npm@latest
+          npm --version
+          node --version
+          # OIDC needs these (set automatically by GitHub-hosted runners):
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" && echo "OIDC request URL present" || echo "WARN: ACTIONS_ID_TOKEN_REQUEST_URL missing"
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" && echo "OIDC request token present" || echo "WARN: ACTIONS_ID_TOKEN_REQUEST_TOKEN missing"
+
       - name: Install dependencies
         run: npm ci
 
