@@ -5,7 +5,7 @@
   "description": "Live crypto prices, conversion, gas tracker, portfolio tools and calculators for AI agents - MCP Server",
   "type": "module",
   "bin": {
-    "mcp-crypto-toolkit": "./dist/index.js"
+    "mcp-crypto-toolkit": "dist/index.js"
   },
   "files": [
     "dist",
@@ -50,7 +50,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nad33mahm3d/mcp-crypto-toolkit.git"
+    "url": "https://github.com/nad33mahm3d/mcp-crypto-toolkit.git"
   },
   "publishConfig": {
     "access": "public"

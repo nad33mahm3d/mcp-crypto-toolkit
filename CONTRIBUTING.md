@@ -88,7 +88,9 @@ On [npmjs.com/package/mcp-crypto-toolkit](https://www.npmjs.com/package/mcp-cryp
 | Repository | `mcp-crypto-toolkit` |
 | Workflow filename | `publish.yml` |
 | Environment name | *(leave empty)* |
-| Allowed actions | include **`npm publish`** |
+| Allowed actions | **must include `npm publish`** (new publishers default to *stage only* after 2026-09-03) |
+
+If Allowed actions is only `npm stage publish`, the workflow fails with `ENEEDAUTH`.
 
 You can delete the old `NPM_TOKEN` GitHub Actions secret afterward.
 
