@@ -183,7 +183,7 @@ See [CONTRIBUTING.md](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/mai
 
 ### Releasing (maintainers)
 
-1. One-time: npm package **Settings → Trusted Publisher** → GitHub Actions → repo `nad33mahm3d/mcp-crypto-toolkit`, workflow `publish.yml` (allow `npm publish`)
+1. One-time: npm package **Settings → Trusted Publisher** → GitHub Actions → repo `nad33mahm3d/mcp-crypto-toolkit`, workflow `publish.yml`, environment **`release`**, allow **`npm publish`**
 2. Update `CHANGELOG.md`
 3. Create a GitHub Release with tag `vX.Y.Z`
 4. Actions publishes to npm via OIDC (no `NPM_TOKEN`; provenance automatic)

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.7] - 2026-09-04
+
+### Fixed
+
+- Align npm OIDC publish with working trusted-publisher setup: GitHub `environment: release`, `registry-url`, `npm@^11.5.1`, `--provenance`
+
 ## [1.2.6] - 2026-09-04
 
 ### Fixed
@@ -86,7 +92,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Binance P2P PKR path for conversions
 - MIT license and README
 
-[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.6...HEAD
+[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.7...HEAD
+[1.2.7]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.6...v1.2.7
 [1.2.6]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.5...v1.2.6
 [1.2.5]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.4...v1.2.5
 [1.2.4]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.3...v1.2.4
