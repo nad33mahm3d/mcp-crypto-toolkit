@@ -67,25 +67,30 @@ tests/              # Vitest unit tests
 
 ## Release process (maintainers)
 
-Publishing is automated when a **GitHub Release** is created.
+Publishing is automated when a **GitHub Release** is created (OIDC trusted publishing — no long-lived npm token).
 
 1. Ensure `main` is green (CI)
-2. Update [CHANGELOG.md](./CHANGELOG.md)
-3. Create a GitHub Release with tag `vX.Y.Z` (e.g. `v1.1.0`)
-4. The [Publish workflow](./.github/workflows/publish.yml) will:
+2. One-time: configure **Trusted Publisher** on npm (see below)
+3. Update [CHANGELOG.md](./CHANGELOG.md)
+4. Create a GitHub Release with tag `vX.Y.Z` (e.g. `v1.2.5`)
+5. The [Publish workflow](./.github/workflows/publish.yml) will:
    - Sync `package.json` version from the tag
    - Run tests + build
-   - `npm publish --access public --provenance`
+   - `npm publish --access public` via OIDC (provenance is automatic)
 
-### Required secret
+### One-time: npm Trusted Publisher
 
-Add repository secret **`NPM_TOKEN`**:
+On [npmjs.com/package/mcp-crypto-toolkit](https://www.npmjs.com/package/mcp-crypto-toolkit) → **Settings → Trusted Publisher**:
 
-1. npmjs.com → Access Tokens → Classic → **Automation**
-2. GitHub repo → Settings → Secrets and variables → Actions → New repository secret
-3. Name: `NPM_TOKEN`
+| Field | Value |
+|-------|--------|
+| Organization or user | `nad33mahm3d` |
+| Repository | `mcp-crypto-toolkit` |
+| Workflow filename | `publish.yml` |
+| Environment name | *(leave empty)* |
+| Allowed actions | include **`npm publish`** |
 
-Without `NPM_TOKEN`, the publish job will fail.
+You can delete the old `NPM_TOKEN` GitHub Actions secret afterward.
 
 ## Code of conduct
 

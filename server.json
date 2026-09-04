@@ -6,12 +6,12 @@
     "url": "https://github.com/nad33mahm3d/mcp-crypto-toolkit",
     "source": "github"
   },
-  "version": "1.2.4",
+  "version": "1.2.5",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "mcp-crypto-toolkit",
-      "version": "1.2.4",
+      "version": "1.2.5",
       "transport": {
         "type": "stdio"
       },
