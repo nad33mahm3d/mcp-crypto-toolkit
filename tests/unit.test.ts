@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { profitCalc } from "../src/tools/profit_calc.js";
 import { resolveCoinId, formatNumber, formatPercent } from "../src/lib/coingecko.js";
 import { Cache } from "../src/lib/cache.js";
+import { checkApiKey } from "../src/lib/worker-guard.js";
 
 describe("resolveCoinId", () => {
   it("maps common symbols", () => {
@@ -67,5 +68,29 @@ describe("Cache", () => {
     expect(cache.get<number>("k")).toBe(42);
     await new Promise((r) => setTimeout(r, 80));
     expect(cache.get<number>("k")).toBeUndefined();
+  });
+});
+
+describe("checkApiKey", () => {
+  it("allows all traffic when key unset", () => {
+    const req = new Request("https://example.com/mcp", { method: "POST" });
+    expect(checkApiKey(req, undefined)).toBeNull();
+  });
+
+  it("accepts Bearer and x-api-key", () => {
+    const bearer = new Request("https://example.com/mcp", {
+      headers: { Authorization: "Bearer secret" },
+    });
+    expect(checkApiKey(bearer, "secret")).toBeNull();
+
+    const header = new Request("https://example.com/mcp", {
+      headers: { "x-api-key": "secret" },
+    });
+    expect(checkApiKey(header, "secret")).toBeNull();
+  });
+
+  it("rejects missing or wrong key", () => {
+    const req = new Request("https://example.com/mcp");
+    expect(checkApiKey(req, "secret")?.status).toBe(401);
   });
 });

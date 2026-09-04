@@ -358,6 +358,96 @@ export async function getCurrentPriceForComparison(
   return result.price;
 }
 
+export interface TrendingCoin {
+  id: string;
+  name: string;
+  symbol: string;
+  market_cap_rank: number | null;
+  score: number;
+  price_btc: number | null;
+  price_usd: number | null;
+  change_24h_usd: number | null;
+}
+
+export async function getTrendingCoins(): Promise<TrendingCoin[]> {
+  const cacheKey = "trending:coins";
+  const cached = priceCache.get<TrendingCoin[]>(cacheKey);
+  if (cached) return cached;
+
+  const response = await fetchWithRetry(`${COINGECKO_BASE}/search/trending`);
+  const data = (await response.json()) as {
+    coins?: Array<{
+      item: {
+        id: string;
+        name: string;
+        symbol: string;
+        market_cap_rank: number | null;
+        score: number;
+        price_btc?: number;
+        data?: {
+          price?: number;
+          price_change_percentage_24h?: { usd?: number };
+        };
+      };
+    }>;
+  };
+
+  const results = (data.coins ?? []).map(({ item }) => ({
+    id: item.id,
+    name: item.name,
+    symbol: item.symbol,
+    market_cap_rank: item.market_cap_rank,
+    score: item.score,
+    price_btc: item.price_btc ?? null,
+    price_usd:
+      typeof item.data?.price === "number"
+        ? formatNumber(item.data.price, priceDecimals("usd", item.data.price))
+        : null,
+    change_24h_usd:
+      typeof item.data?.price_change_percentage_24h?.usd === "number"
+        ? formatPercent(item.data.price_change_percentage_24h.usd)
+        : null,
+  }));
+
+  priceCache.set(cacheKey, results, TTL.TRENDING);
+  return results;
+}
+
+export interface FearGreedIndex {
+  value: number;
+  classification: string;
+  updatedAt: string;
+}
+
+export async function getFearGreedIndex(): Promise<FearGreedIndex> {
+  const cacheKey = "fear-greed:1";
+  const cached = priceCache.get<FearGreedIndex>(cacheKey);
+  if (cached) return cached;
+
+  const response = await fetchWithRetry(
+    "https://api.alternative.me/fng/?limit=1",
+  );
+  const data = (await response.json()) as {
+    data?: Array<{
+      value: string;
+      value_classification: string;
+      timestamp: string;
+    }>;
+  };
+  const row = data.data?.[0];
+  if (!row) {
+    throw new CoinGeckoError("Fear & Greed index unavailable");
+  }
+
+  const result: FearGreedIndex = {
+    value: Number(row.value),
+    classification: row.value_classification,
+    updatedAt: new Date(Number(row.timestamp) * 1000).toISOString(),
+  };
+  priceCache.set(cacheKey, result, TTL.TRENDING);
+  return result;
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

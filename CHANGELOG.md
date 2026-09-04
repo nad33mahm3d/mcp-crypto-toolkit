@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-09-04
+
+### Added
+
+- Cloudflare Workers deploy (`src/worker.ts`, `wrangler.toml`, `npm run deploy:cf`)
+- Hosted remote MCP: `https://mcp-crypto-toolkit.nad33mahm3d.workers.dev/mcp`
+- `trending` tool — CoinGecko trending coins + Fear & Greed Index
+- `whats-trending` prompt; market-overview also calls trending
+- Worker per-IP rate limit (default 60 req/min) and optional `MCP_API_KEY` gate
+- GitHub Action to deploy Worker on release (`deploy-cf.yml`)
+- README: live connector URL, DeepWiki, mcpservers.org badge, Claude connector screenshot
+- `server.json` `remotes` entry for the hosted endpoint
+
 ## [1.2.7] - 2026-09-04
 
 ### Fixed

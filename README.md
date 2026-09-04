@@ -4,12 +4,19 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP](https://img.shields.io/badge/MCP-Server-blue.svg)](https://modelcontextprotocol.io)
 [![CI](https://github.com/nad33mahm3d/mcp-crypto-toolkit/actions/workflows/ci.yml/badge.svg)](https://github.com/nad33mahm3d/mcp-crypto-toolkit/actions/workflows/ci.yml)
+[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/nad33mahm3d/mcp-crypto-toolkit)
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-docs-blueviolet)](https://deepwiki.com/nad33mahm3d/mcp-crypto-toolkit)
 
 **Live crypto prices, conversion, gas tracker, portfolio tools, and calculators for AI agents.**
 
 Ask Claude: *What's ETH doing? Top 10 coins? Gas on Base? What's my portfolio worth?*
 
+**Hosted (Claude.ai Custom Connector):** [`https://mcp-crypto-toolkit.nad33mahm3d.workers.dev/mcp`](https://mcp-crypto-toolkit.nad33mahm3d.workers.dev/mcp)  
+**Docs:** [DeepWiki](https://deepwiki.com/nad33mahm3d/mcp-crypto-toolkit) · [mcpservers.org](https://mcpservers.org/servers/nad33mahm3d/mcp-crypto-toolkit)
+
 ![Demo](https://raw.githubusercontent.com/nad33mahm3d/mcp-crypto-toolkit/main/demo.gif)
+
+![Claude.ai Custom Connector — 10 tools](https://raw.githubusercontent.com/nad33mahm3d/mcp-crypto-toolkit/main/docs/claude-connector.png)
 
 ## Features
 
@@ -22,9 +29,10 @@ Ask Claude: *What's ETH doing? Top 10 coins? Gas on Base? What's my portfolio wo
 - Historical point-in-time + range charts (7d/30d/…)
 - EVM gas tracker with USD transfer estimates
 - Profit/loss calculator with exchange + network fees
+- Trending coins + Crypto Fear & Greed Index
 - MCP prompts for common workflows
 - **Zero config** — no API key required (optional `COINGECKO_API_KEY` for higher limits)
-- stdio + HTTP transports
+- stdio + HTTP + Cloudflare Workers transports
 
 ## Quick Install
 
@@ -76,10 +84,17 @@ Only deploy HTTP if you want a **remote** `/mcp` endpoint (e.g. Claude.ai Custom
 
 #### Claude.ai Custom Connector
 
-1. Deploy HTTP (`npm run start:http` or Docker / MCP Hosting / Render)
-2. In Claude.ai: **Settings → Connectors → Add custom connector**
-3. URL: `https://YOUR-HOST/mcp` (must include `/mcp`)
-4. After upgrading the server, remove and re-add the connector if tools still show as empty
+Public hosted endpoint (Cloudflare Workers):
+
+```
+https://mcp-crypto-toolkit.nad33mahm3d.workers.dev/mcp
+```
+
+1. In Claude.ai: **Settings → Connectors → Add custom connector**
+2. Paste the URL above (must include `/mcp`)
+3. You should see **10 tools** (get price, convert, trending, …)
+
+Or deploy your own (Cloudflare / Docker / Render) and use `https://YOUR-HOST/mcp`. After upgrading a hosted server, remove and re-add the connector if tools still show as empty.
 
 Do **not** put a remote URL in `claude_desktop_config.json` — that file is stdio-only. For Claude Desktop local use, prefer:
 
@@ -93,6 +108,34 @@ Do **not** put a remote URL in `claude_desktop_config.json` — that file is std
   }
 }
 ```
+
+**Cloudflare Workers (recommended remote — free tier)**
+
+Uses the web-standard MCP transport (`src/worker.ts`) — no Docker required.
+
+Live demo: [health](https://mcp-crypto-toolkit.nad33mahm3d.workers.dev/health) · [MCP](https://mcp-crypto-toolkit.nad33mahm3d.workers.dev/mcp)
+
+```bash
+npm install
+npx wrangler login
+npm run deploy:cf
+```
+
+After deploy: `https://mcp-crypto-toolkit.<your-subdomain>.workers.dev/health`  
+Claude / Smithery URL: `https://mcp-crypto-toolkit.<your-subdomain>.workers.dev/mcp`
+
+Local preview: `npm run dev:cf`
+
+Optional secrets / vars:
+
+```bash
+npx wrangler secret put COINGECKO_API_KEY
+npx wrangler secret put MCP_API_KEY   # optional: require Bearer / x-api-key on /mcp
+# Pro keys also need: wrangler.toml [vars] COINGECKO_PRO = "1"
+# Optional: RATE_LIMIT_PER_MINUTE = "60" (default)
+```
+
+CI: add repo secrets `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` — Worker auto-deploys on GitHub Release (and via workflow_dispatch).
 
 **Render (free — no credit card)**
 
@@ -114,7 +157,7 @@ docker run -p 3000:3000 mcp-crypto-toolkit
 
 Optional env: `COINGECKO_API_KEY`, `COINGECKO_PRO=1`, gas oracle keys (see table below).
 
-## Tools (9)
+## Tools (10)
 
 | Tool | Description |
 |------|-------------|
@@ -127,12 +170,14 @@ Optional env: `COINGECKO_API_KEY`, `COINGECKO_PRO=1`, gas oracle keys (see table
 | `historical_price` | Point date or range chart + investment snapshot |
 | `gas_tracker` | Gas fees + estimated transfer cost (USD) |
 | `profit_calc` | P&L, ROI, break-even (fees + network fee) |
+| `trending` | Trending coins + Fear & Greed Index |
 
 ## Prompts
 
 | Prompt | Purpose |
 |--------|---------|
-| `market-overview` | Top coins + market tone |
+| `market-overview` | Top coins + trending + market tone |
+| `whats-trending` | Trending coins + Fear & Greed |
 | `analyze-coin` | Price + 7d trend for one coin |
 | `trade-pnl` | Walk through a P&L calc |
 | `gas-check` | Gas + transfer cost advice |
@@ -148,6 +193,7 @@ Optional env: `COINGECKO_API_KEY`, `COINGECKO_PRO=1`, gas oracle keys (see table
 7. *Show SOL's 30-day price range*
 8. *What's gas on Base right now in USD?*
 9. *I bought at 100, sold at 120, qty 10, 0.1% fees — profit?*
+10. *What's trending and what's the Fear & Greed index?*
 
 ## Development
 
@@ -166,6 +212,8 @@ npm run inspector
 |----------|---------|
 | `COINGECKO_API_KEY` | Higher CoinGecko rate limits (still optional) |
 | `COINGECKO_PRO=1` | Use Pro header with your key |
+| `MCP_API_KEY` | Worker only: require Bearer / `x-api-key` on `/mcp` |
+| `RATE_LIMIT_PER_MINUTE` | Worker only: default `60` |
 | `ETHERSCAN_API_KEY` / `BSCSCAN_API_KEY` / … | Better gas oracles |
 | `OPTIMISM_API_KEY` | Optimism gas oracle |
 | `PORT` | HTTP server port (default 3000) |
@@ -180,6 +228,8 @@ See [CONTRIBUTING.md](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/mai
 - [Security Policy](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/SECURITY.md)
 - [Support](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/SUPPORT.md)
 - [Changelog](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/main/CHANGELOG.md)
+- [DeepWiki](https://deepwiki.com/nad33mahm3d/mcp-crypto-toolkit) — auto-generated architecture docs
+- [mcpservers.org](https://mcpservers.org/servers/nad33mahm3d/mcp-crypto-toolkit)
 
 ### Releasing (maintainers)
 
@@ -190,7 +240,8 @@ See [CONTRIBUTING.md](https://github.com/nad33mahm3d/mcp-crypto-toolkit/blob/mai
 
 ## API Credits
 
-- [CoinGecko](https://www.coingecko.com/) — prices & markets (free tier, no key required)
+- [CoinGecko](https://www.coingecko.com/) — prices, markets, trending (free tier, no key required)
+- [Alternative.me](https://alternative.me/crypto/fear-and-greed-index/) — Fear & Greed Index
 - [Binance P2P](https://p2p.binance.com/) — USDT/PKR when converting to PKR
 - [Etherscan](https://etherscan.io/) family — optional gas oracles
 - [Blocknative](https://www.blocknative.com/) — gas fallback
