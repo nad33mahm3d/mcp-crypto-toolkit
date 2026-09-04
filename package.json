@@ -1,6 +1,6 @@
 {
   "name": "mcp-crypto-toolkit",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "mcpName": "io.github.nad33mahm3d/mcp-crypto-toolkit",
   "description": "Live crypto prices, conversion, gas tracker, portfolio tools and calculators for AI agents - MCP Server",
   "type": "module",

@@ -103,6 +103,7 @@ const TOOLS = [
         coin: { type: "string" },
         date: { type: "string", description: "DD-MM-YYYY for point-in-time" },
         days: {
+          type: ["string", "number"],
           description: "Range chart: 1, 7, 14, 30, 90, 180, 365, or max",
         },
         vs_currency: { type: "string", default: "usd" },
@@ -157,6 +158,10 @@ const TOOLS = [
       type: "object" as const,
       properties: {
         coins: {
+          oneOf: [
+            { type: "string" },
+            { type: "array", items: { type: "string" } },
+          ],
           description: "Array or comma-separated list, e.g. btc,eth,sol",
         },
         vs_currency: { type: "string", default: "usd" },
