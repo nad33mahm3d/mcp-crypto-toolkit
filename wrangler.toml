@@ -1,0 +1,11 @@
+name = "mcp-crypto-toolkit"
+main = "src/worker.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Optional secrets / vars:
+#   npx wrangler secret put COINGECKO_API_KEY
+#   npx wrangler secret put MCP_API_KEY
+# [vars]
+# COINGECKO_PRO = "1"
+# RATE_LIMIT_PER_MINUTE = "60"

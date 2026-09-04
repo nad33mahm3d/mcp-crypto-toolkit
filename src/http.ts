@@ -1,18 +1,9 @@
 import { createServer, type IncomingMessage } from "node:http";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { registerTools } from "./server.js";
+import { createMcpServer } from "./create-server.js";
+import { SERVER_NAME, VERSION } from "./version.js";
 
 const PORT = Number(process.env.PORT ?? 3000);
-const packageJson = JSON.parse(
-  readFileSync(
-    join(dirname(fileURLToPath(import.meta.url)), "../package.json"),
-    "utf8",
-  ),
-) as { version: string };
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -21,20 +12,6 @@ const CORS_HEADERS = {
     "content-type, accept, mcp-session-id, mcp-protocol-version",
   "Access-Control-Expose-Headers": "mcp-session-id",
 } as const;
-
-function createMcpServer() {
-  const server = new Server(
-    {
-      name: "mcp-crypto-toolkit",
-      version: packageJson.version,
-      description:
-        "Live crypto prices, conversion, gas tracker, portfolio tools and calculators for AI agents",
-    },
-    { capabilities: { tools: {}, prompts: {} } },
-  );
-  registerTools(server);
-  return server;
-}
 
 function readBody(req: IncomingMessage): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -67,8 +44,8 @@ const httpServer = createServer(async (req, res) => {
     if (req.method === "GET" && (path === "/" || path === "/health")) {
       const body = JSON.stringify({
         ok: true,
-        name: "mcp-crypto-toolkit",
-        version: packageJson.version,
+        name: SERVER_NAME,
+        version: VERSION,
         mcp: "/mcp",
       });
       res.writeHead(200, {

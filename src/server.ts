@@ -21,6 +21,7 @@ import {
   portfolioValue,
   portfolioValueSchema,
 } from "./tools/portfolio_value.js";
+import { trending, trendingSchema } from "./tools/trending.js";
 
 const TOOLS = [
   {
@@ -192,12 +193,28 @@ const TOOLS = [
       required: ["holdings"],
     },
   },
+  {
+    name: "trending",
+    description:
+      "What's hot right now: CoinGecko trending coins plus Crypto Fear & Greed Index.",
+    inputSchema: {
+      type: "object" as const,
+      properties: {
+        include_fear_greed: {
+          type: "boolean",
+          default: true,
+          description: "Include Alternative.me Fear & Greed Index (default true)",
+        },
+      },
+    },
+  },
 ];
 
 const PROMPTS = [
   {
     name: "market-overview",
-    description: "Global crypto market snapshot using top coins and gainers/losers",
+    description:
+      "Global crypto market snapshot: top coins, gainers/losers, and trending + fear/greed",
     arguments: [
       {
         name: "vs_currency",
@@ -210,6 +227,11 @@ const PROMPTS = [
         required: false,
       },
     ],
+  },
+  {
+    name: "whats-trending",
+    description: "Trending coins and Fear & Greed Index snapshot",
+    arguments: [],
   },
   {
     name: "analyze-coin",
@@ -292,7 +314,21 @@ export function registerTools(server: Server): void {
               role: "user" as const,
               content: {
                 type: "text" as const,
-                text: `Give me a crypto market overview in ${vs}. Use the top_coins tool with limit ${limit}. Summarize leaders, notable gainers/losers, and overall tone.`,
+                text: `Give me a crypto market overview in ${vs}. 1) Call top_coins with limit ${limit}. 2) Call trending. Summarize leaders, gainers/losers, what's trending, and Fear & Greed tone.`,
+              },
+            },
+          ],
+        };
+      }
+      case "whats-trending": {
+        return {
+          description: "Trending + sentiment workflow",
+          messages: [
+            {
+              role: "user" as const,
+              content: {
+                type: "text" as const,
+                text: "Call the trending tool. List the hottest coins and explain the Fear & Greed reading in plain language.",
               },
             },
           ],
@@ -385,6 +421,10 @@ export function registerTools(server: Server): void {
         case "portfolio_value":
           return toolSuccess(
             await portfolioValue(portfolioValueSchema.parse(args ?? {})),
+          );
+        case "trending":
+          return toolSuccess(
+            await trending(trendingSchema.parse(args ?? {})),
           );
         default:
           return toolError(`Unknown tool: ${name}`);
