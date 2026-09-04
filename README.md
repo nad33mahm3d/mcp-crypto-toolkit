@@ -72,7 +72,27 @@ npm run start:http
 
 **You do not need paid hosting for discoverability.** This server already installs via `npx -y mcp-crypto-toolkit` (stdio) and is listed on the [Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.nad33mahm3d/mcp-crypto-toolkit). Glama and PulseMCP ingest from there — no Fly/Railway bill required.
 
-Only deploy HTTP if you want a **remote** `/mcp` endpoint (e.g. Smithery URL publish).
+Only deploy HTTP if you want a **remote** `/mcp` endpoint (e.g. Claude.ai Custom Connector or Smithery URL publish).
+
+#### Claude.ai Custom Connector
+
+1. Deploy HTTP (`npm run start:http` or Docker / MCP Hosting / Render)
+2. In Claude.ai: **Settings → Connectors → Add custom connector**
+3. URL: `https://YOUR-HOST/mcp` (must include `/mcp`)
+4. After upgrading the server, remove and re-add the connector if tools still show as empty
+
+Do **not** put a remote URL in `claude_desktop_config.json` — that file is stdio-only. For Claude Desktop local use, prefer:
+
+```json
+{
+  "mcpServers": {
+    "crypto-toolkit": {
+      "command": "npx",
+      "args": ["-y", "mcp-crypto-toolkit"]
+    }
+  }
+}
+```
 
 **Render (free — no credit card)**
 

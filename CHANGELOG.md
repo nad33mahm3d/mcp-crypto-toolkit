@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.4] - 2026-09-04
+
+### Fixed
+
+- HTTP transport: answer JSON-RPC notifications (e.g. `notifications/initialized`) with a non-empty 202 so reverse proxies (Cloudflare / MCP Hosting) do not hang — fixes Claude.ai Custom Connector connected with 0 tools
+- Tool JSON Schemas: add missing `type` for `historical_price.days` and `compare_coins.coins`
+- CORS `OPTIONS` preflight on `/mcp`
+
 ## [1.2.3] - 2026-09-03
 
 ### Added
@@ -66,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Binance P2P PKR path for conversions
 - MIT license and README
 
-[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.3...HEAD
+[Unreleased]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.4...HEAD
+[1.2.4]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.3...v1.2.4
 [1.2.3]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.1...v1.2.2
 [1.2.1]: https://github.com/nad33mahm3d/mcp-crypto-toolkit/compare/v1.2.0...v1.2.1
